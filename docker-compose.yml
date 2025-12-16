@@ -1,8 +1,32 @@
 version: '3'
 services:
+  # 1. DATABASE (MongoDB)
+  mongo:
+    image: mongo:latest
+    container_name: my_database
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  # 2. BACKEND (NodeJS) - Ket noi Database
   backend:
     build: ./backend
-    ports: ['5000:5000']
+    container_name: my_backend
+    ports:
+      - '5000:5000'
+    depends_on:
+      - mongo
+    environment:
+      - DB_HOST=mongo
+      - DB_PORT=27017
+
+  # 3. FRONTEND (Nginx)
   frontend:
     build: ./frontend
-    ports: ['8080:80']
+    container_name: my_frontend
+    ports:
+      - '8080:80'
+
+volumes:
+  mongo_data:
